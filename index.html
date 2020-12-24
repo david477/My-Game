@@ -1,135 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game</title>
-  <style>
-    button{
-      margin: 20px;
-      text-transform: uppercase;
-    }
-  </style>
-</head>
-<body>
-  <canvas id="canvas" style="display: block; border: 1px solid;"></canvas>
-  <label>Colors</label>
-  <input type="color" id="color1" value="#11ff00">
-  <input type="color" id="color2" value="#e100ff">
-  <button onclick="counter()">Count</button>
-  <button onclick="clearMyCanvas()">Clear</button>
-  <button onclick="replay()">Replay</button>
-  <button onclick="save()">Save</button>
-  <label id="link"></label>
-  <script>
-    var canv = document.getElementById("canvas");
-    var ctx = canv.getContext("2d");
-
-    canv.width = window.innerWidth;
-    canv.height = window.innerHeight;
-
-    var xPath = new Array();
-    var yPath = new Array();
-    var colorPath = new Array();
-
-    var isMouseDown = false;
-
-    canv.addEventListener("mousedown", () => {
-      isMouseDown = true;
-    });
-    canv.addEventListener("mouseup", () => {
-      isMouseDown = false;
-
-      ctx.beginPath();
-    });
-    canv.addEventListener("mousemove", (e) => {
-      if(isMouseDown){
-        var color1 = document.getElementById("color1").value;
-        var color2 = document.getElementById("color2").value;
-
-        var grd = ctx.createLinearGradient(0,0,800,500);
-        grd.addColorStop(0, color1);
-        grd.addColorStop(1, color2);
-
-        colorPath.push(grd);
-
-        xPath.push(e.clientX);
-        yPath.push(e.clientY);
-
-        
-        ctx.lineTo(e.clientX, e.clientY);
-        ctx.lineWidth = 10;
-        ctx.strokeStyle = grd;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(e.clientX, e.clientY, 5, 0, 2 * Math.PI);
-        ctx.fillStyle = grd;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.moveTo(e.clientX, e.clientY);
-        
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game</title>
+    <style>
+      body {
+        display: grid;
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        height: 100vh;
+        grid-template-areas:
+          "canvas"
+          "controls";
+        grid-template-rows: 1fr 20%;
       }
-    });
-
-    function counter(){
-      for (let i = 0; i < xPath.length; i++) {
-        ctx.beginPath();
-        ctx.arc(xPath[i], yPath[i], 5, 0, 2 * Math.PI);
-        ctx.fillStyle = "red";
-        ctx.fill();
+      #container1 {
+        grid-area: controls;
+        padding: 10px;
       }
-      var a = xPath.length - 1;
-      alert("Кол-во точек на рисунке составляет: " + a);
-    }
+      #container2 {
+        grid-area: canvas;
+      }
 
-    function replay() {
-      ctx.clearRect(0, 0, 800, 500);
-      for (let i = 0; i < xPath.length; i++) {
-        setTimeout(function(){
+    </style>
+  </head>
+  <body>
+    <div id="container2">
+      <canvas id="canvas"></canvas>
+    </div>
+    <div id="container1">
+      <input type="color" id="color1" value="#11ff00" />
+      <input type="color" id="color2" value="#e100ff" />
+      <button onclick="counter()">Count</button>
+      <button onclick="clearMyCanvas()">Clear</button>
+      <button onclick="replay()">Replay</button>
+      <button onclick="save()">Save</button>
+      <button onclick="background()">Background</button>
+
+      <p>&copy; Давид Суанов</p>
+    </div>
+
+    <script>
+      var canv = document.getElementById("canvas");
+      var ctx = canv.getContext("2d");
+      var container = document.getElementById("container2");
+
+      var grdPath;
+      var bg = false;
+
+      var w = container.clientWidth;
+      var h = container.clientHeight;
+
+      canv.width = w;
+      canv.height = h;
+
+      var xPath = new Array();
+      var yPath = new Array();
+      var colorPath = new Array();
+
+      var isMouseDown = false;
+
+      canv.addEventListener("mousedown", (e) => {
+        isMouseDown = true;
+      });
+      canv.addEventListener("mouseup", () => {
+        isMouseDown = false;
+
+        ctx.beginPath();
+      });
+      canv.addEventListener("mousemove", (e) => {
+        if (isMouseDown) {
+          var color1 = document.getElementById("color1").value;
+          var color2 = document.getElementById("color2").value;
+
+          var grd = ctx.createLinearGradient(0, 0, w, h);
+          grd.addColorStop(0, color1);
+          grd.addColorStop(1, color2);
+
+          colorPath.push(grd);
+
+          xPath.push(e.clientX);
+          yPath.push(e.clientY);
+
+          ctx.lineTo(e.clientX, e.clientY);
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = grd;
+          ctx.stroke();
+
           ctx.beginPath();
-        ctx.arc(xPath[i], yPath[i], 5, 0, 2 * Math.PI);
-        ctx.fillStyle = colorPath[i];
-        ctx.fill();
+          ctx.arc(e.clientX, e.clientY, 5, 0, 2 * Math.PI);
+          ctx.fillStyle = grd;
+          ctx.fill();
 
+          ctx.beginPath();
+          ctx.moveTo(e.clientX, e.clientY);
+        }
+      });
+
+      function counter() {
+        for (let i = 0; i < xPath.length; i++) {
+          ctx.beginPath();
+          ctx.arc(xPath[i], yPath[i], 5, 0, 2 * Math.PI);
+          ctx.fillStyle = "red";
+          ctx.fill();
+        }
+        var a = xPath.length - 1;
+        alert("Кол-во точек на рисунке составляет: " + a);
+      }
+
+      function replay() {
+        ctx.clearRect(0, 0, w, h);
+        if (bg) {
+          ctx.fillStyle = grdPath;
+          ctx.fillRect(0, 0, w, h);
+        }
+        for (let i = 0; i < xPath.length; i++) {
+          setTimeout(function () {
+            ctx.beginPath();
+            ctx.arc(xPath[i], yPath[i], 5, 0, 2 * Math.PI);
+            ctx.fillStyle = colorPath[i];
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(xPath[i], yPath[i]);
+            ctx.lineTo(xPath[i + 1], yPath[i + 1]);
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = colorPath[i];
+            ctx.stroke();
+          }, 100);
+        }
         ctx.beginPath();
-        ctx.moveTo(xPath[i], yPath[i]);
-        ctx.lineTo(xPath[i + 1], yPath[i + 1]);
-        ctx.lineWidth = 10;
-        ctx.strokeStyle = colorPath[i];
-        ctx.stroke();
-        }, 100);
-    }
-    ctx.beginPath();
-    }
-    function clearMyCanvas() {
-      ctx.clearRect(0, 0, 800, 500);
-      ctx.beginPath();
-      colorPath.length = 0;
-      xPath.length = 0;
-      yPath.length = 0;
-    }
-    function save() {
-      var dataURL = canv.toDataURL("image/png");
-      var link = document.createElement("a");
-      link.innerText = "Downoload";
-      link.href = dataURL;
-      link.download = "my-image-name.png";
-      var linkMenu = document.getElementById("link");
-      linkMenu.appendChild(link);
-    }
-  </script>
-  <h2>Colors</h2>
-  <p>Измените цвета в двух окошках для того, чтобы изменить цвета градиента (перехода цветов). Левое окошко - верхний левый цвет, правое - нижний правый цвет.</p>
-  <h2>COUNTER</h2>
-  <p>Нажмите на эту кнопку чтобы узнать кол-во точек на холсте.</p>
-  <h2>CLEAR</h2>
-  <p>Нажмите на эту кнопку чтобы отчистить холст.</p>
-  <h2>REPLAY</h2>
-  <p>Нажмите на эту кнопку чтобы воспроизвести свой рисунок.</p>
-  <h2>SAVE</h2>
-  <p>Нажмите на эту кнопку чтобы высветилас ссылка. Нажмите на ссылку чтобы сохранить рисунок.</p>
-  <p>&copy; Давид Суанов</p>
-</body>
+      }
+      function clearMyCanvas() {
+        ctx.clearRect(0, 0, w, h);
+        ctx.beginPath();
+        colorPath.length = 0;
+        xPath.length = 0;
+        yPath.length = 0;
+        bg = false;
+      }
+
+      function save() {
+        var dataURL = canv.toDataURL("image/png");
+        var link = document.createElement("a");
+        link.href = dataURL;
+        link.download = "my-image-name.png";
+        link.click();
+      }
+
+      function background() {
+        var color1 = document.getElementById("color1").value;
+          var color2 = document.getElementById("color2").value;
+          var grd = ctx.createLinearGradient(0, 0, w, h);
+          grd.addColorStop(0, color1);
+          grd.addColorStop(1, color2);
+
+          grdPath = grd;
+          bg = true;
+
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, w, h);
+      }
+    </script>
+  </body>
 </html>
