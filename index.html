@@ -71,7 +71,7 @@
         ctx.beginPath();
       });
       canv.addEventListener("mousemove", (e) => {
-        if (isMouseDown) {
+        if (isMouseDown || w < 600) {
           var color1 = document.getElementById("color1").value;
           var color2 = document.getElementById("color2").value;
 
@@ -166,3 +166,4 @@
     </script>
   </body>
 </html>
+
